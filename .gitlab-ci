@@ -1,0 +1,20 @@
+stages:
+  - test
+test-flyway:
+  stage: test
+  tags: [test]
+  except:
+   - tags
+  services:
+  - name: postgres:13
+    alias: postgres
+  variable:
+    POSTGRES_DB: postgres
+    POSTGRES_USER: hcp
+    POSTGRES_PASSWORD: hcp
+    DATABASE_HOST: postgres
+  script:
+    - make update-db-ci
+    - FILES=$(ls flyway/sql/rollback/*)
+    - for f in $FILES; do psql postgres://localhost/postgres -f  $f ; done
+    - make update-db-ci
